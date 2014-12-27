@@ -14,8 +14,6 @@ module Tests =
     type Int32 with
         member this.framesOf = List.init this
 
-    let validFrame (a, b) = a >= 0 && b >= 0
-
     let sum (a, b) = a + b
     let sumFrames = Seq.sumBy sum
 

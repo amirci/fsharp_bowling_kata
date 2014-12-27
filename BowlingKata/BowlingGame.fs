@@ -13,22 +13,18 @@ module BowlingGame =
             | 10 -> Spare
             | _  -> Lame
 
-        let nextTwoRolls = function
-        | Strike::(a, b)::tail -> 10, a
-        | frame ::tail         -> frame
-        | []                   -> 0, 0
-
-        let rec calculate score throw frames =
-            match throw, frames with
+        let rec calculate throws (score:int) frames =
+            let next = calculate (throws - 1)
+            match throws, frames with
             | 0, _  -> score
             | _, [] -> score
+            | _, Spare::(a, b)::rest -> 
+                next (score + 10 + a) ((a, b)::rest)
+            | _, Strike::Strike::(a, b)::rest ->
+                next (score + 20 + a) ((10, 0)::(a, b)::rest)
+            | _, Strike::(a, b)::rest ->
+                next (score + 10 + a + b) ((a, b)::rest)
             | _, (a, b)::rest ->
-                let r1, r2 = rest |> nextTwoRolls
-                let bonus = match (a, b) with 
-                            | Strike -> r1 + r2
-                            | Spare  -> r1
-                            | _      -> 0
+                next (score + a + b) rest
 
-                calculate (score + a + b + bonus) (throw - 1) rest
-
-        aGame |> calculate 0 10
+        aGame |> calculate 10 0
